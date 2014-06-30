@@ -1,0 +1,77 @@
+# This role will set-up directories (/etc/iptables/fragments.v{4,6}/ in which
+# configuration snippets for iptables may be placed. These snippets will be
+# concatenated together and fed to iptables-restore, which is part of the
+# iptables-persistent package.
+#
+# This role is best applied before any other roles, to ensure the fragments
+# directories exist so that other roles may drop rules into them.
+---
+
+- include: ../../../snippets/require-debian-family.yml
+
+- name: Purge ufw
+  apt:
+    name: uwf
+    state: absent
+
+- name: Install iptables-persistent
+  apt:
+    pkg: iptables-persistent
+    state: present
+
+- name: Manage iptables configuration directories
+  file:
+    state: directory
+    path: "{{ item }}"
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+   - /etc/iptables/
+   - /etc/iptables/fragments.v4/
+   - /etc/iptables/fragments.v6/
+
+- name: Manage default iptables policies
+  iptables:
+    state: present
+    ipversion: "{{ item.version }}"
+    name: "{{ item.name }}"
+    rules: "{{ lookup('file', item.file) }}"
+    table: "{{ item.table|default('filter') }}"
+  with_items:
+   - name: 00_start
+     version: 4
+     file: filter_start
+   - name: 05_default_rules_begin
+     version: 4
+     file: ipv4_default_rules_begin
+   - name: 95_default_rules_end
+     version: 4
+     file: ipv4_default_rules_end
+   - name: 99_commit
+     version: 4
+     file: commit
+
+   - name: 00_start
+     version: 4
+     table: nat
+     file: nat_start
+   - name: 99_commit
+     version: 4
+     table: nat
+     file: commit
+
+   - name: 00_start
+     version: 6
+     file: filter_start
+   - name: 05_default_rules_begin
+     version: 6
+     file: ipv6_default_rules_begin
+   - name: 95_default_rules_end
+     version: 6
+     file: ipv6_default_rules_end
+   - name: 99_commit
+     version: 6
+     file: commit
+  notify: Rebuild firewall rules
+  tags: [firewall]

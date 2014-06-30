@@ -1,0 +1,7 @@
+# Manages ssh_config
+---
+
+- name: Manage /etc/ssh/ssh_config
+  template: >
+    src=ssh_config
+    dest=/etc/ssh/ssh_config

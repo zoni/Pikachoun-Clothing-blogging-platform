@@ -1,0 +1,13 @@
+---
+
+- include: ../../firewall/handlers/main.yml
+
+- name: Reload sshd
+  service:
+    name: ssh
+    state: reloaded
+
+- name: Restart sshd
+  service:
+    name: ssh
+    state: restarted

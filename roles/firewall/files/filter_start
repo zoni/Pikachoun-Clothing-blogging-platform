@@ -1,0 +1,8 @@
+# This file is managed by ansible. Firewall rules are built by concatenating
+# these snippets together in order.
+
+*filter
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
+

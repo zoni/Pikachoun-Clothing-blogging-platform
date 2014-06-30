@@ -1,0 +1,2 @@
+-A INPUT -p tcp -j REJECT --reject-with tcp-reset
+-A INPUT -p udp -j REJECT --reject-with icmp6-port-unreachable

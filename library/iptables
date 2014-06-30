@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Ansible module to manage iptables rules
+"""
+
+DOCUMENTATION = '''
+---
+module: iptables
+short_description: Manage iptables rules
+description:
+  - Adds and removes iptables files to and from C(/etc/iptables/fragments.v4/) (ipv4) or C(/etc/iptables/fragments.v6/) (ipv6)
+author: Nick Groenen
+version_added: "1.3"
+notes:
+  - Relies on the C(firewall) role being applied to target hosts prior to calling this module
+  - Roles using this module should include the C(firewall) handlers and notify the C(Rebuild firewall rules) task when calling this module
+options:
+  fragment_dir:
+    description:
+      - The directory where this iptables fragment should be placed - don't change unless you know what you're doing
+    required: false
+  ipversion:
+    description:
+      - Target the IP version this rule is for
+    required: false
+    default: "4"
+    choices: ["4", "6"]
+  table:
+    description:
+      - The table this rule applies to
+    choices: ["filter", "nat", "mangle", "raw", "security"]
+    default: filter
+  state:
+    description:
+      - The state this rules fragment should be in
+    choices: ["present", "absent"]
+    default: present
+  rules:
+    description:
+      - The rules that should be in this fragment
+    required: true
+'''
+
+EXAMPLES = '''
+- name: Allow all IPv4 traffic coming in on port 80 (http)
+  iptables:
+    state: present
+    ipversion: 4
+    name: 50_allow_http
+    rules: -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+  notify:
+    - Rebuild firewall rules
+
+- name: Allow all IPv4 and IPv6 traffic coming in on port 80 (http) and 443 (https)
+  iptables:
+    state: present
+    ipversion: "{{ item }}"
+    name: 50_webserver_ports
+    rules: |
+      -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+      -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+  with_items: [4,6]
+  notify:
+    - Rebuild firewall rules
+'''
+
+
+import os
+
+
+def main():
+
+    module = AnsibleModule(
+        argument_spec = dict(
+            fragment_dir = dict(required=False, type='str', default=None),
+            ipversion    = dict(required=False, choices=["4", "6"], type='str', default="4"),
+            state        = dict(choices=['present', 'absent'], default='present', type='str'),
+            name         = dict(required=True, type='str'),
+            table        = dict(choices=["filter", "nat", "mangle", "raw", "security"], default="filter", type='str'),
+            rules        = dict(required=True, type='str')
+        ),
+        supports_check_mode = True,
+    )
+
+    check_mode = module.check_mode
+    changed    = False
+    params     = module.params
+    ipversion  = module.params['ipversion']
+    state      = module.params['state']
+    name       = module.params['name']
+    table      = module.params['table']
+    rules      = module.params['rules']
+
+    try:
+
+        if ipversion == "4":
+            fragment_dir = (params['fragment_dir'] if params['fragment_dir'] is not None
+                            else '/etc/iptables/fragments.v4/')
+        else:
+            fragment_dir = (params['fragment_dir'] if params['fragment_dir'] is not None
+                            else '/etc/iptables/fragments.v6/')
+        fragment_path = os.path.join(fragment_dir, "_".join((table, name)))
+
+        if not rules.endswith("\n"):
+            rules += "\n"
+
+        done = False
+        if params['state'] == "present":
+            if os.path.exists(fragment_path):
+                # Fragment already exists. Check if it's changed.
+                current = open(fragment_path, 'r').read()
+                if current == rules:
+                    done = True
+            if not done:
+                # Fragment changed or didn't exist at all
+                changed = True
+                if not check_mode:
+                    with open(fragment_path, "w") as f:
+                        f.write(rules)
+        else:
+            if os.path.exists(fragment_path):
+                changed = True
+                if not check_mode:
+                    os.unlink(fragment_path)
+    except Exception as e:
+        msg="An exception occurred during module execution: %s: %s" % (type(e), e)
+        module.fail_json(msg=msg)
+    else:
+        module.exit_json(changed=changed)
+
+
+# include magic from lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+if not os.environ.get('running_tests', False):
+    main()

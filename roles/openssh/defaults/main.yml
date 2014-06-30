@@ -1,0 +1,12 @@
+---
+# If yes, will automatically create iptables firewall rules for
+# the firewall role.
+openssh_firewall_integration: yes
+
+# The following variables all correspond directly with their sshd_config
+# counterparts. See `man sshd_config` for more info.
+openssh_PermitRootLogin: without-password
+#openssh_DenyUsers:
+#openssh_AllowUsers:
+#openssh_DenyGroups:
+#openssh_AllowGroups:

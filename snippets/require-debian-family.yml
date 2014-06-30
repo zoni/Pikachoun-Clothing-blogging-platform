@@ -1,0 +1,7 @@
+# Playbooks including this file will fail with an error message
+# when their operating system is not of the Debian family.
+---
+
+- name: Check OS compatibility
+  fail: msg="Operatingsystem {{ ansible_os_family }} is not supported"
+  when: ansible_os_family != "Debian"

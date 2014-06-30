@@ -1,0 +1,15 @@
+# Accept anything coming from the loopback interface
+-A INPUT -i lo -j ACCEPT
+
+# Accept all icmp traffic. icmp is good!
+-A INPUT -p icmp -j ACCEPT
+
+# Anything related to already accepted connections should pass unhindered as well
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Accelerate port
+-A INPUT -p tcp -m tcp --dport 5099 -j ACCEPT
+
+# If the above doesn't work, this next rule could be used instead, though the above
+# is better
+# -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT

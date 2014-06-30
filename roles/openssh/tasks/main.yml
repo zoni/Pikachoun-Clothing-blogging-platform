@@ -1,0 +1,5 @@
+# Manages settings and such for ssh and sshd
+---
+
+- include: ssh.yml
+- include: sshd.yml

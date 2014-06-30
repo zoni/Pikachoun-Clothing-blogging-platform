@@ -1,0 +1,36 @@
+---
+
+- name: Rebuild firewall rules
+  assemble:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    mode: "0644"
+    owner: root
+    group: root
+  with_items:
+   - src: /etc/iptables/fragments.v4/
+     dest: /etc/iptables/rules.v4
+   - src: /etc/iptables/fragments.v6/
+     dest: /etc/iptables/rules.v6
+  notify:
+   - Load ipv4 firewall rules
+   - Load ipv6 firewall rules
+   - Restart fail2ban
+
+- name: Load ipv4 firewall rules
+  shell: iptables-restore < /etc/iptables/rules.v4
+
+- name: Load ipv6 firewall rules
+  shell: ip6tables-restore < /etc/iptables/rules.v6
+
+# This task ignores errors because not all hosts may be installed with
+# fail2ban, and we wouldn't want to fail in those circumstances.
+#
+# TODO: A more rebust solution for the future will be to determine if
+#       fail2ban is actually installed or not and attempt to restart
+#       only when it is.
+- name: Restart fail2ban
+  service:
+    name: fail2ban
+    state: restarted
+  ignore_errors: yes

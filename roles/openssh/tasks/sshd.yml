@@ -1,0 +1,29 @@
+# Manages sshd_config
+---
+
+- name: Manage /etc/ssh/sshd_config
+  template:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0644"
+    validate: 'sshd -t -f %s'
+  notify: Reload sshd
+
+- name: Open up firewall port 22
+  iptables:
+    state: present
+    ipversion: "{{ item.version }}"
+    name: "{{ item.name }}"
+    rules: "{{ item.rules }}"
+  with_items:
+   - name: 50_open_port_22
+     version: 4
+     rules: -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+   - name: 50_open_port_22
+     version: 6
+     rules: -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+  when: openssh_firewall_integration|default(False)
+  notify: Rebuild firewall rules
+  tags: [firewall,iptables]

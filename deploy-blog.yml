@@ -1,0 +1,18 @@
+# This playbook deploys the (wordpress) blog of Pikachoun Clothing.
+---
+
+- name: Do some prep work
+  hosts: blog
+  sudo: yes
+  tasks:
+    - name: Update apt cache if older than one hour
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+- name: Provision server with wordpress and components
+  hosts: blog
+  sudo: yes
+  roles:
+    - firewall
+    - openssh
