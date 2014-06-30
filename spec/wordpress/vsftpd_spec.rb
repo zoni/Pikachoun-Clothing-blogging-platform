@@ -17,6 +17,7 @@ describe file('/etc/vsftpd.conf') do
 
   its(:content) { should match /^local_enable=YES/ }
   its(:content) { should match /^anonymous_enable=NO/ }
+  its(:content) { should match /^write_enable=YES/ }
 
   # None of the requirements in the assigment say anything about security,
   # however I think it's a core responsibility to set up proper security
