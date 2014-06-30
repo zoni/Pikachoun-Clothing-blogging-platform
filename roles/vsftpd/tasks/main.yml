@@ -1,0 +1,40 @@
+# This role installs the vsftpd FTP daemon
+---
+
+- include: ../../../snippets/require-debian-family.yml
+
+- name: Install packages
+  apt:
+    name: vsftpd
+    state: present
+  tags: [apt,packages,dependencies]
+
+- name: Install configuration file
+  template:
+    src: vsftpd.conf
+    dest: /etc/vsftpd.conf
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Restart vsftpd
+  tags: [config]
+
+- name: Ensure vsftpd is started and enabled at boot
+  service:
+    name: vsftpd
+    state: started
+    enabled: true
+  tags: [service]
+
+- name: Create firewall rules
+  iptables:
+    state: present
+    ipversion: "{{ item }}"
+    name: 50_vsftpd
+    rules: |
+       -A INPUT -p tcp -m tcp --dport 21 -j ACCEPT
+  with_items: [4,6]
+  when: vsftpd_firewall_integration|default(False)
+  notify: Rebuild firewall rules
+  tags: [firewall,iptables]

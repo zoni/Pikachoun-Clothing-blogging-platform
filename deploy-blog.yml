@@ -1,14 +1,26 @@
 # This playbook deploys the (wordpress) blog of Pikachoun Clothing.
 ---
 
-- name: Do some prep work
-  hosts: blog
+- name: Do some prep work on our vagrant box
+  hosts: vagrant
   sudo: yes
   tasks:
+    # This ensures packages don't fail to download/install because
+    # of outdated apt caches after a fresh import
     - name: Update apt cache if older than one hour
       apt:
         update_cache: yes
         cache_valid_time: 3600
+    - name: Install ssl-cert
+      apt:
+        name: ssl-cert
+        state: present
+    # This should be done automatically by the installation of ssl-cert,
+    # but better safe than sorry
+    - name: Generate default snakeoil certificates
+      command: > 
+        make-ssl-cert generate-default-snakeoil
+        creates=/etc/ssl/private/ssl-cert-snakeoil.key
 
 - name: Provision server with wordpress and components
   hosts: blog
@@ -19,3 +31,4 @@
     - nginx
     - Rackspace_Automation.mysql
     - php/fpm
+    - vsftpd

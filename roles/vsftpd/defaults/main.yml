@@ -1,0 +1,10 @@
+---
+
+# If yes, will automatically create iptables firewall rules for
+# the firewall role.
+vsftpd_firewall_integration: yes
+
+# Path to the certificate used for TLS
+vsftpd_rsa_cert_file: /etc/ssl/certs/ssl-cert-snakeoil.pem
+# Path to the certificate private key used for TLS
+vsftpd_rsa_private_key_file: /etc/ssl/private/ssl-cert-snakeoil.key

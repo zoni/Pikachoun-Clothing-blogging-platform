@@ -1,0 +1,8 @@
+---
+
+- include: ../../firewall/handlers/main.yml
+
+- name: Restart vsftpd
+  service:
+    name: vsftpd
+    state: restarted
