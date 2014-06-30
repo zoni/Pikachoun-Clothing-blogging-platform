@@ -1,0 +1,91 @@
+# Installs and configures nginx (without any actual sites by default)
+#
+# Set `nginx_firewall_integration` to true to have this module automatically
+# open up ports 80 and 443 to everyone.
+---
+
+- include: ../../../snippets/require-debian-family.yml
+
+- include: disable-passenger.yml
+  when: not nginx_passenger|default(False)
+
+- include: enable-passenger.yml
+  when: nginx_passenger|default(False)
+
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - nginx-full
+    - python-passlib  # Required by the Ansible module htpasswd:
+                      # http://www.ansibleworks.com/docs/modules.html#htpasswd
+  tags: [apt,dependencies]
+
+- name: Create nginx config directories
+  file:
+    dest: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "755"
+  with_items:
+    - "{{ nginx_config_dir }}"
+    - "{{ nginx_config_dir }}/conf.d"
+    - "{{ nginx_config_dir }}/sites-available"
+    - "{{ nginx_config_dir }}/sites-enabled"
+    - "{{ nginx_config_dir }}/htpasswd"
+
+- name: Install nginx config files
+  template:
+    src: "{{ item }}"
+    dest: "{{ nginx_config_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: "644"
+  with_items:
+    - fastcgi_params
+    - koi-utf
+    - koi-win
+    - mime.types
+    - nginx.conf
+    - proxy_params
+    - scgi_params
+    - uwsgi_params
+    - win-utf
+  notify: Reload nginx
+  tags: [config]
+
+- name: Create document root
+  file:
+    path: /opt/www
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "755"
+  tags: [docroot]
+
+- name: Remove default site
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
+
+- name: Ensure nginx is started and enabled at boot
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Create firewall rules
+  iptables:
+    state: present
+    ipversion: "{{ item }}"
+    name: 50_nginx
+    rules: |
+       -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+       -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+  with_items: [4,6]
+  when: nginx_firewall_integration|default(False)
+  notify: Rebuild firewall rules
+  tags: [firewall,iptables]

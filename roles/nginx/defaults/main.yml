@@ -1,0 +1,17 @@
+---
+
+# If yes, will automatically create iptables firewall rules for
+# the firewall role.
+nginx_firewall_integration: yes
+nginx_config_dir: /etc/nginx/
+# If yes, install nginx package provided by Phusion in order
+# to have the Passenger module included
+nginx_passenger: no
+
+nginx_worker_processes: "{{ ansible_processor_cores }}"
+nginx_worker_connections: 1024
+
+# See http://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+nginx_ssl_prefer_server_ciphers: "On"
+nginx_ssl_protocols: "SSLv3 TLSv1 TLSv1.1 TLSv1.2"
+nginx_ssl_ciphers: "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AES:RSA+3DES:!ADH:!AECDH:!MD5:!DSS"

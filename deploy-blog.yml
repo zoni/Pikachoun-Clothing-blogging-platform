@@ -16,3 +16,4 @@
   roles:
     - firewall
     - openssh
+    - nginx

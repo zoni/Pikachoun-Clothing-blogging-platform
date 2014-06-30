@@ -1,0 +1,18 @@
+---
+
+- name: Remove Phusion Automated Software Signing key
+  apt_key:
+    state: absent
+    url: http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x561F9B9CAC40B2F7
+    id: 561F9B9CAC40B2F7
+  tags: [apt,key,apt_key]
+
+- name: Remove Phusion Passenger apt source
+  apt_repository:
+    state: absent
+    repo: deb https://oss-binaries.phusionpassenger.com/apt/passenger {{ ansible_distribution_release }} main
+    update_cache: yes
+  tags: [apt,repository,sources]
+  notify: Force reinstall nginx
+
+- meta: flush_handlers

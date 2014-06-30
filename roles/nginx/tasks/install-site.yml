@@ -1,0 +1,32 @@
+# Install a site from nginx sites-{available,enabled}.
+#
+# Expects:
+#
+#   * name: Filename to use
+#   * src: Source template for use in sites-available
+#
+# Warning:
+#
+#   This file may be symlinked to by other roles
+---
+
+- name: Install nginx vhost to sites-available
+  template:
+    src: "{{ src }}"
+    dest: /etc/nginx/sites-available/{{ name }}
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload nginx
+  tags: [config,configuration,nginx]
+
+- name: Link nginx vhost from sites-available to sites-enabled
+  file:
+    state: link
+    src: /etc/nginx/sites-available/{{ name }}
+    dest: /etc/nginx/sites-enabled/{{ name }}
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload nginx
+  tags: [nginx]

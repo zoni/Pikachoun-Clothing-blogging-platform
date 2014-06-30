@@ -1,0 +1,22 @@
+# Remove a site from nginx sites-{available,enabled}.
+#
+# Expects:
+#
+#   * name: Filename to use
+#
+# Warning:
+#
+#   This file may be symlinked to by other roles
+---
+
+- name: Remove nginx vhost from sites-available
+  file:
+    path: /etc/nginx/sites-available/{{ name }}
+    state: absent
+  notify: Reload nginx
+
+- name: Remove nginx vhost symlink from sites-enabled
+  file:
+    path: /etc/nginx/sites-enabled/{{ name }}
+    state: absent
+  notify: Reload nginx

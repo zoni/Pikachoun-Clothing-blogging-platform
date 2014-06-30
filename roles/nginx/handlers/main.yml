@@ -1,0 +1,19 @@
+---
+
+- include: ../../firewall/handlers/main.yml
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded
+
+- name: Force reinstall nginx
+  apt:
+    name: nginx-full
+    state: latest
+    force: yes
