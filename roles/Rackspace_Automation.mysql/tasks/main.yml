@@ -1,0 +1,38 @@
+---
+# tasks file for mysql
+- name: check for the mysql_root_password variable
+  fail: msg="mysql_root_password has not been defined."
+  when: mysql_root_password is not defined
+
+- name: set mysql_server_id based on ip address
+  set_fact: mysql_server_id={{ ansible_eth0.ipv4.address|regex_replace("^.{0,3}|[.]") }}
+  when: mysql_server_id is not defined
+
+- name: include os specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Include RedHat specific tasks
+  include: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Include Debian specific tasks
+  include: Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Check for unsupported target operating system
+  fail:
+    msg: "The operating system of the target machine ({{ inventory_hostname }}) is not currently supported."
+  when: mysql_supported_os is not defined
+
+- name: ensure mysql is started
+  service: name={{ mysql_service_name }} state=started enabled=yes
+
+- name: configure root user password
+  mysql_user: name=root password={{ mysql_root_password }} state=present priv=*.*:ALL,GRANT
+
+- name: configure the new password
+  template: src=client_my.cnf.j2 dest=~/.my.cnf owner=root group=root mode=0600
+
+- name: setup replication if set
+  include: replication.yml
+  when: mysql_replication
