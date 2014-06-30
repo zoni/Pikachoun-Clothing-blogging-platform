@@ -34,6 +34,9 @@
     name: 50_vsftpd
     rules: |
        -A INPUT -p tcp -m tcp --dport 21 -j ACCEPT
+       {% for port in range(vsftpd_pasv_start_port, vsftpd_pasv_end_port+1) %}
+       -A INPUT -p tcp -m tcp --dport {{ port }} -j ACCEPT
+       {% endfor %}
   with_items: [4,6]
   when: vsftpd_firewall_integration|default(False)
   notify: Rebuild firewall rules

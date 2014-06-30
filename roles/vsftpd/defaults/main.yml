@@ -8,3 +8,16 @@ vsftpd_firewall_integration: yes
 vsftpd_rsa_cert_file: /etc/ssl/certs/ssl-cert-snakeoil.pem
 # Path to the certificate private key used for TLS
 vsftpd_rsa_private_key_file: /etc/ssl/private/ssl-cert-snakeoil.key
+
+# Start and end port of the port range used for passive FTP
+# connections. For every port in this range, a separate ACCEPT rule
+# is created in iptables. There is no way around this because
+# ip_conntrack_ftp cannot be used with the TLS-encrypted FTP channel
+# so we cannot use the RELATED,ESTABLISHED filters.
+#
+# For this reason it's best to leave it nice and small, and only
+# increase as needed. Every port opened allows one more data
+# connection to be opened simultaniously, so the default allows
+# 20 simultanious connections.
+vsftpd_pasv_start_port: 64500
+vsftpd_pasv_end_port: 64520
