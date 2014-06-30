@@ -2,3 +2,8 @@
 
 mysql_bind_address: 127.0.0.1
 mysql_root_password: CkiSxejE0z9owxvVCpnuiJKzTRGjGRf6
+
+php_fpm_pools_group:
+ - name: www
+   user: www-data
+   group: www-data

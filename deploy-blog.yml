@@ -18,3 +18,4 @@
     - openssh
     - nginx
     - Rackspace_Automation.mysql
+    - php/fpm

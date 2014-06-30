@@ -1,0 +1,53 @@
+# This role installs and configures php5-fpm.
+#
+# Pools can be created using `php_fpm_pools_{all,group,host}`.
+# These are expected to be lists with items consisting of the
+# following structure:
+#
+#   php_fpm_pools_host:
+#    - name: www
+#      user: www-data
+#      group: www-data
+#
+# Please see the pool.j2 template to see what keys are supported.
+---
+
+- include: ../../../../snippets/require-debian-family.yml
+
+- name: Dependencies
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - php5-fpm
+  tags: [apt,packages]
+
+- name: php-fpm.conf
+  template:
+    src: php-fpm.conf
+    dest: /etc/php5/fpm/php-fpm.conf
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Restart fpm
+  tags: [config]
+
+- name: Service
+  service:
+    name: php5-fpm
+    state: started
+    enabled: yes
+  tags: [service]
+
+- name: Pools
+  template:
+    src: pool.j2
+    dest: /etc/php5/fpm/pool.d/{{ item.name }}.conf
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Restart fpm
+  with_items: php_fpm_pools_all|default([]) + php_fpm_pools_group|default([]) + php_fpm_pools_host|default([])
+  tags: [config,pools]
