@@ -29,3 +29,23 @@ bundle install
 ```
 
 Additionally, [Vagrant](http://vagrantup.com/) also needs to be installed.
+
+Provisioning
+------------
+
+By running `vagrant up`, a fresh Ubuntu 14.04 LTS machine will be created
+and booted up, ready to be provisioned for Pikachoun's blog. Once the Vagrant
+machine has booted, the Ansible `deploy-blog.yml` playbook can be played in
+order to provision it:
+
+```
+vagrant up
+ansible-playbook deploy-blog.yml
+```
+
+Running tests
+-------------
+
+Serverspec tests may be run in order to ensure all components are correctly
+set-up. After provisioning, serverspec tests may be run by executing
+`bundle exec rake spec`.
