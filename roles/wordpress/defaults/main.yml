@@ -1,0 +1,67 @@
+---
+
+# Nginx servernames to use for this instance.
+# This should be an array. The first entry is taken as the canonical
+# servername, all others will be redirected there.
+wordpress_servernames: [wordpress.localdomain, _]
+
+# The instance name. This is used as the filename for the nginx config
+# in /etc/nginx/sites-{available,enabled} as well as part of the php-fpm
+# pool name.
+#
+# Make sure it contains only letters, digits and or underscores, no
+# spaces or other potentially dangerous characters.
+wordpress_instance_name: wordpress
+# Port to make the fpm pool for this instance listen on
+wordpress_fpm_port: 5000
+
+# Name of the user to run this wordpress instance under
+wordpress_user: wordpress
+# If yes, will directly manage this user. Disable when using an existing
+# user
+wordpress_manage_user: yes
+
+# Name of the group to run under
+wordpress_group: www-data
+# If yes, will directly manage this group. Disable when using an existing
+# group
+wordpress_manage_group: no
+
+# Path where wordpress should be installed into
+wordpress_dir: /opt/www/wordpress/
+# Mode of the above directory.
+wordpress_dir_mode: "0750"
+
+# Url to the wordpress archive to install. If you wish to install
+# a specific version of wordpress, you could point the URL to a
+# specific archive version here.
+wordpress_download_url: https://wordpress.org/latest.tar.gz
+# If set to yes, the downloaded install archive will not be
+# deleted after installing wordpress.
+wordpress_keep_archive: no
+
+# If yes, will manage a mysql user with the details of the variables
+# that follow after
+wordpress_manage_mysql_user: yes
+wordpress_mysql_user_name: wordpress
+#wordpress_mysql_user_password: undefined - set it yourself!
+wordpress_mysql_user_priv: "wordpress.*:ALL"
+
+# If yes, will manage a mysql db with the details of the variables
+# that follow after
+wordpress_manage_mysql_db: yes
+wordpress_mysql_db_name: wordpress
+wordpress_mysql_db_collation: utf8_unicode_ci
+
+# Path to the certificate used for TLS
+wordpress_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
+# Path to the certificate private key used for TLS
+wordpress_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
+
+# See templates/fpm-pool.j2 for documentation on the next set of items
+wordpress_fpm_max_children: 10
+wordpress_fpm_start_servers: 2
+wordpress_fpm_min_spare_servers: 1
+wordpress_fpm_max_spare_servers: 3
+wordpress_fpm_process_idle_timeout: "10s"
+wordpress_fpm_max_requests: 0

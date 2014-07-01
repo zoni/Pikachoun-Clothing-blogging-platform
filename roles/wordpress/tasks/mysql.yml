@@ -1,0 +1,24 @@
+---
+
+- name: Ensure wordpress_mysql_user_password is set
+  fail:
+    msg: You must set wordpress_mysql_user_password
+  when: wordpress_manage_mysql_user and wordpress_mysql_user_password is undefined
+  tags: [mysql,user]
+
+- name: Create mysql user
+  mysql_user:
+    state: present
+    name: "{{ wordpress_mysql_user_name }}"
+    password: "{{ wordpress_mysql_user_password }}"
+    priv: "{{ wordpress_mysql_user_priv }}"
+  when: wordpress_manage_mysql_user
+  tags: [mysql,user]
+
+- name: Create mysql db
+  mysql_db:
+    state: present
+    name: "{{ wordpress_mysql_db_name }}"
+    collation: "{{ wordpress_mysql_db_collation }}"
+  when: wordpress_manage_mysql_db
+  tags: [mysql,db]

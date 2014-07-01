@@ -3,6 +3,9 @@
 mysql_bind_address: 127.0.0.1
 mysql_root_password: CkiSxejE0z9owxvVCpnuiJKzTRGjGRf6
 
+wordpress_dir: /opt/www/wordpress.localdomain
+wordpress_mysql_user_password: PF5dN7V95SCtadYEFHdA2fTn85xsxyYe
+
 php_fpm_pools_group:
  - name: www
    user: www-data

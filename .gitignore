@@ -2,3 +2,4 @@
 .~*
 /.vagrant
 /ansible.log
+__pycache__

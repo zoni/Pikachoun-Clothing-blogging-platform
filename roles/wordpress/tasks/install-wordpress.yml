@@ -1,0 +1,22 @@
+---
+
+- name: Fetch latest wordpress installer archive
+  sudo: yes
+  sudo_user: "{{ wordpress_user }}"
+  get_url:
+    url: "{{ wordpress_download_url }}"
+    dest: "{{ wordpress_dir }}/wordpress.tar.gz"
+
+- name: Unpack wordpress
+  sudo: yes
+  sudo_user: "{{ wordpress_user }}"
+  command: >
+    tar xaf wordpress.tar.gz
+    chdir={{ wordpress_dir }}
+    creates={{ wordpress_dir }}/wordpress
+
+- name: Remove wordpress archive
+  file:
+    state: absent
+    path: "{{ wordpress_dir }}/wordpress.tar.gz"
+  when: not wordpress_keep_archive

@@ -1,0 +1,15 @@
+---
+
+- name: Create fpm pool
+  template:
+    src: fpm-pool.j2
+    dest: /etc/php5/fpm/pool.d/wordpress-{{ wordpress_instance_name }}.conf
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Restart fpm
+
+- include: install-site.yml
+  name: "{{ wordpress_instance_name }}"
+  src: nginx.j2

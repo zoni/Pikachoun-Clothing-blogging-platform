@@ -46,6 +46,9 @@ ansible-playbook deploy-blog.yml
 Running tests
 -------------
 
-Serverspec tests may be run in order to ensure all components are correctly
-set-up. After provisioning, serverspec tests may be run by executing
-`bundle exec rake spec`.
+This projects makes use of two seperate test suites. It uses serverspec to
+make assertions about the state of the machine and uses a *py.test* testsuite
+to do some higher-level integration testing.
+
+The serverspec tests may be run by executing `bundle exec rake spec`.
+The python *py.test* tests may be run by executing `py.test`.

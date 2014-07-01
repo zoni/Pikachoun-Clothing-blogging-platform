@@ -32,3 +32,4 @@
     - Rackspace_Automation.mysql
     - php/fpm
     - vsftpd
+    - wordpress

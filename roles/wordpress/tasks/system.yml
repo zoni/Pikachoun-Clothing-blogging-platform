@@ -1,0 +1,31 @@
+---
+
+- name: Install dependencies
+  apt:
+    name: php5-mysql
+    state: present
+  tags: [apt,packages,dependencies]
+
+- name: Manage user
+  user:
+    name: "{{ wordpress_user }}"
+    state: present
+    home: "{{ wordpress_dir }}"
+    createhome: yes
+  when: wordpress_manage_user
+  tags: [user]
+
+- name: Manage group
+  user:
+    name: "{{ wordpress_group }}"
+    state: present
+  when: wordpress_manage_group
+  tags: [group]
+
+- name: Manage wordpress directory
+  file:
+    state: directory
+    path: "{{ wordpress_dir }}"
+    owner: "{{ wordpress_user }}"
+    group: "{{ wordpress_group }}"
+    mode: "{{ wordpress_dir_mode }}"
