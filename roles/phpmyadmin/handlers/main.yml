@@ -1,0 +1,4 @@
+---
+
+- include: ../../nginx/handlers/main.yml
+- include: ../../php/fpm/handlers/main.yml

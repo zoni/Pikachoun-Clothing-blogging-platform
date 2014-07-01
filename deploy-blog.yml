@@ -33,3 +33,4 @@
     - php/fpm
     - vsftpd
     - wordpress
+    - phpmyadmin

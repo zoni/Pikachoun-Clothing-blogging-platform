@@ -1,0 +1,36 @@
+---
+
+- name: Generate random password
+  shell: >
+    < /dev/urandom| head --bytes 32 | sha1sum | cut --fields 1 --delimiter ' '
+  register: random_password
+
+- name: Create mysql user
+  mysql_user:
+    state: present
+    name: phpmyadmin
+    password: "{{ random_password.stdout }}"
+    priv: "phpmyadmin.*:ALL"
+  tags: [mysql,user]
+
+- name: Create mysql db
+  mysql_db:
+    state: present
+    name: phpmyadmin
+    collation: utf8_unicode_ci
+  tags: [mysql,db]
+
+# Table names are prefixed with pma__ in the sql file, while phpmyadmin seems
+# to call for pma_, hence the sed invocation.
+- name: Create phpmyadmin tables (needed for advanced features)
+  shell: >
+    gunzip --to-stdout /usr/share/doc/phpmyadmin/examples/create_tables.sql.gz | sed -e 's/pma__/pma_/g' | mysql phpmyadmin
+
+- name: Install config-db.php
+  template:
+    src: config-db.php
+    dest: /etc/phpmyadmin/config-db.php
+    owner: root
+    group: www-data
+    mode: 0640
+  tags: [config]

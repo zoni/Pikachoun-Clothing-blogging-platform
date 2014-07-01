@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+
+server {
+	listen 80;
+	server_name {{ phpmyadmin_server_name }};
+	access_log /var/log/nginx/{{ phpmyadmin_server_name }}.access.log;
+	error_log /var/log/nginx/{{ phpmyadmin_server_name }}.error.log;
+	return 301 https://{{ phpmyadmin_server_name }}$request_uri;
+}
+
+server {
+	listen 443 ssl;
+	server_name {{ phpmyadmin_server_name }};
+
+	ssl_certificate {{ phpmyadmin_certificate }};
+	ssl_certificate_key {{ phpmyadmin_certificate_key }};
+
+	root /usr/share/phpmyadmin;
+	index index.html index.php;
+
+	access_log /var/log/nginx/{{ phpmyadmin_server_name }}.access.log;
+	error_log /var/log/nginx/{{ phpmyadmin_server_name }}.error.log;
+
+	# To prevent potential accidental leaking of sensitive data, deny access to all dotfiles
+	location ~ /\. {
+		deny all;
+	}
+
+	location ~ \.php$ {
+		try_files $uri $uri/ /index.php?$args =404;
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		fastcgi_pass unix:/var/run/php-fpm-phpmyadmin.sock;
+		fastcgi_index index.php;
+		include fastcgi_params;
+	}
+}

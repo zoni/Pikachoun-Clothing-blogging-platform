@@ -1,0 +1,18 @@
+---
+
+# The nginx server name to use for the phpmyadmin instance
+phpmyadmin_server_name: pma.localdomain
+
+# Path to the certificate used for TLS
+phpmyadmin_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
+# Path to the certificate private key used for TLS
+phpmyadmin_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
+
+# Port the php-fpm pool for phpmyadmin should listen on
+# See templates/fpm-pool.j2 for documentation on the next set of items
+phhpmyadmin_fpm_max_children: 10
+phhpmyadmin_fpm_start_servers: 2
+phhpmyadmin_fpm_min_spare_servers: 1
+phhpmyadmin_fpm_max_spare_servers: 3
+phhpmyadmin_fpm_process_idle_timeout: "10s"
+phhpmyadmin_fpm_max_requests: 0
