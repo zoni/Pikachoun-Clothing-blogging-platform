@@ -45,6 +45,15 @@ ansible-playbook deploy-blog.yml
 
 A rake task, `rake provision` has been provided which does both for you.
 
+Sample database
+---------------
+
+A sample config and database for wordpress has been provided for testing
+purposes. These may be installed by running the rake task `sampleinstall`.
+
+Please note that this is *a sample database only*! The admin account has
+username `admin` and password `admin`.
+
 Running tests
 -------------
 

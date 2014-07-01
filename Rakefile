@@ -25,3 +25,9 @@ task :provision do
   sh "vagrant up"
   sh "ansible-playbook deploy-blog.yml"
 end
+
+desc "Setup a sample installation for wordpress"
+task :sampleinstall do
+  sh "ansible -s -m shell -a 'cp /vagrant/sample/wp-config.php /opt/www/wordpress.localdomain/wordpress/wp-config.php && chown wordpress:wordpress /opt/www/wordpress.localdomain/wordpress/wp-config.php' blog"
+  sh "ansible -s -m mysql_db -a 'name=wordpress state=import target=/vagrant/sample/wordpress_pikachoun_clothing.sql.gz' blog"
+end
