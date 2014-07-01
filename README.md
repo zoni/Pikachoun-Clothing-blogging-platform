@@ -43,6 +43,8 @@ vagrant up
 ansible-playbook deploy-blog.yml
 ```
 
+A rake task, `rake provision` has been provided which does both for you.
+
 Running tests
 -------------
 
@@ -50,5 +52,6 @@ This projects makes use of two seperate test suites. It uses serverspec to
 make assertions about the state of the machine and uses a *py.test* testsuite
 to do some higher-level integration testing.
 
-The serverspec tests may be run by executing `bundle exec rake spec`.
-The python *py.test* tests may be run by executing `py.test`.
+A rake task, `rake tests` has been provided which runs both of these testsuites
+for you. You can also use the individual `rake serverspec` and `rake pytest` to
+run them individually.
