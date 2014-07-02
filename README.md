@@ -1,9 +1,15 @@
 Pikachoun Clothing blogging platform
 ====================================
 
-Pikachoun Clothing is a fictional company that needs their Wordpress
-blogging platform automated. This is part of an assessment by Rackspace
-for Automation Engineers.
+*Pikachoun Clothing* is a fictional company that needs their Wordpress
+blogging platform automated. This is part of an assessment from Rackspace
+for people applying for the role of Automation Engineer.
+
+Pikachoun Clothing has provided a list of requirements that their platform
+needs to adhere to, but to discourage other people taking the same assessment
+I have chosen not to publish them here. Study the structure of the project
+and the history of the repository and you will get a good sense of what is
+asked, though. :)
 
 Requirements
 ------------
