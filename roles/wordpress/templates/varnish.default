@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+#
+# Note: If systemd is installed, this file is obsolete and ignored.  You will
+# need to copy /lib/systemd/system/varnish.service to /etc/systemd/system/ and
+# edit that file.
+
+# Should we start varnishd at boot?  Set to "no" to disable.
+START=yes
+
+# Maximum number of open files (for ulimit -n)
+NFILES=131072
+
+# Maximum locked memory size (for ulimit -l)
+# Used for locking the shared memory log in memory.  If you increase log size,
+# you need to increase this number as well
+MEMLOCK=82000
+
+DAEMON_OPTS="-a localhost:{{ wordpress_varnish_port }} \
+             -T localhost:{{ wordpress_varnish_telnet_port }} \
+             -f /etc/varnish/default.vcl \
+             -S /etc/varnish/secret \
+             -s malloc,{{ wordpress_varnish_cache_size }}"

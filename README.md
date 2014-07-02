@@ -64,3 +64,18 @@ to do some higher-level integration testing.
 A rake task, `rake tests` has been provided which runs both of these testsuites
 for you. You can also use the individual `rake serverspec` and `rake pytest` to
 run them individually.
+
+A note on Varnish caching
+-------------------------
+
+Varnish is set up to cache aggressively which means that, without a plugin to
+purge the cache at the right times, stale content will be served (for example
+after a user comments or a new post is made). It is assumed a plugin such as
+[Varnish HTTP Purge](http://wordpress.org/plugins/varnish-http-purge/) or
+[WordPress Varnish](https://wordpress.org/plugins/wordpress-varnish/) is installed
+to selectively purge the cache when needed.
+
+If installing such a plugin is out of the question, then one may choose to set a
+low value (such as 5 minutes) for `wordpress_varnish_ttl` (the default is a
+moderately low 1 hour) in order to have some caching benefits but keep content
+from becoming too stale.

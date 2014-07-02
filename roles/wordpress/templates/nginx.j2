@@ -1,9 +1,28 @@
 # {{ ansible_managed }}
 
+upstream varnish {
+	server localhost:{{ wordpress_varnish_port }} max_fails=2 fail_timeout=30;
+	# Internal http->fastcgi to speak to fpm directly used as fallback in case
+	# varnish is down.
+	server localhost:{{ wordpress_http_to_fastscgi_port }} backup;
+}
+
+upstream fpm {
+	server localhost:{{ wordpress_fpm_port }};
+}
 
 {# --- Macros for configuration snippets that are used in multiple server blocks --- #}
 
 {% macro shared_locations() %}
+	location / {
+		try_files $uri $uri/ /index.php?$args =404;
+		proxy_pass http://varnish;
+		include proxy_params;
+
+		# Add trailing slash to */wp-admin requests.
+		rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+	}
+
 	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
 		expires max;
 		log_not_found off;
@@ -17,14 +36,6 @@
 	# Prevent php scripts uploaded to uploads and files directories from being executed
 	location ~* /(?:uploads|files)/.*\.php$ {
 		deny all;
-	}
-
-	location ~ \.php$ {
-		try_files $uri $uri/ /index.php?$args =404;
-		fastcgi_split_path_info ^(.+\.php)(/.+)$;
-		fastcgi_pass localhost:{{ wordpress_fpm_port }};
-		fastcgi_index index.php;
-		include fastcgi_params;
 	}
 {% endmacro %}
 
@@ -52,6 +63,7 @@ server {
 }
 {% endif %}
 
+# Outward-facing HTTP
 server {
 	listen 80;
 	{{ server() }}
@@ -64,6 +76,7 @@ server {
 	{{ shared_locations() }}
 }
 
+# Outward-facing HTTPS
 server {
 	listen 443 ssl;
 	ssl_certificate {{ wordpress_certificate }};
@@ -71,4 +84,37 @@ server {
 	{{ server() }}
 	{{ logs() }}
 	{{ shared_locations() }}
+}
+
+# Varnish backend. Necessary because Varnish cannot speak fastcgi so
+# it talks back to Nginx again which will convert from http -> fastcgi
+#
+# Addionally, nginx cannot have an http backend as primary with a
+# fastcgi as backup (they all need to be the same protocol) so when
+# Varnish is down nginx talks back to itself over this server too.
+server {
+	listen localhost:{{ wordpress_http_to_fastscgi_port }};
+	root {{ wordpress_dir }}/wordpress;
+	index index.html index.php;
+
+	access_log /var/log/nginx/{{ wordpress_servernames[0] }}.http2fastcgi.log;
+	error_log /var/log/nginx/{{ wordpress_servernames[0] }}.error.log;
+
+	# Ifs are evil, but there's no other clean way to do this.
+	# (It would be possible to set it as a custom header, make sure nginx sets
+	# it and Varnish correctly passes it along without modification as well, but
+	# that introduces lots of points where it might break. This seems the lesser
+	# of two evils)
+	set $request_via_https "";
+	if ($http_x_forwarded_proto = https) {
+		set $request_via_https "on";
+	}
+
+	location ~ \.php$ {
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		fastcgi_pass fpm;
+		fastcgi_index index.php;
+		include fastcgi_params;
+		fastcgi_param HTTPS $request_via_https;
+	}
 }

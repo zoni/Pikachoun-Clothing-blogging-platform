@@ -1,3 +1,4 @@
 ansible
 pytest
 requests
+sh

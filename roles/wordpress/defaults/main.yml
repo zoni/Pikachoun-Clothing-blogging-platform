@@ -65,3 +65,20 @@ wordpress_fpm_min_spare_servers: 1
 wordpress_fpm_max_spare_servers: 3
 wordpress_fpm_process_idle_timeout: "10s"
 wordpress_fpm_max_requests: 0
+# Port used by nginx to convert http request to fastcgi (going to fpm)
+wordpress_http_to_fastscgi_port: 6080
+
+# The port varnish will listen on
+wordpress_varnish_port: 6081
+# The port the telnet admin port will listen on
+wordpress_varnish_telnet_port: 6082
+# Amount of memory Varnish will use for cache
+wordpress_varnish_cache_size: 256m
+# The time Varnish will cache regular responses
+wordpress_varnish_ttl: 1h
+# Grace time for Varnish objects. This means Varnish will keep objects
+# this long after they have normally expired, which is useful for serving
+# stale content in case a backend is returning errors. The higher you set
+# this, the longer you can keep serving stale content in the case of, for
+# example a mysql server outage.
+wordpress_varnish_grace: 6h
