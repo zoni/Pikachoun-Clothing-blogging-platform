@@ -115,3 +115,11 @@ def test_varnish_caches_pages_past_expiry_on_backend_error(low_ttl_varnish, varn
     sleep(6)
     r = requests.get('http://wordpress.localdomain/')
     assert r.headers['x-cache'] == "MISS"
+
+def test_varnish_does_not_cache_pages_with_no_cache_xxx(varnish):
+    ansible_shell("echo test_wordpress > /opt/www/wordpress.localdomain/wordpress/no-cache-12345.html")
+    r = requests.get('http://wordpress.localdomain/no-cache-12345.html')
+    assert r.headers['x-cache'] == "MISS"
+    assert "test_wordpress" in r.text
+    r = requests.get('http://wordpress.localdomain/no-cache-12345.html')
+    assert r.headers['x-cache'] == "MISS"

@@ -24,7 +24,7 @@ sub vcl_recv {
     set req.url = regsub(req.url, "\?.*$", "");
   }
 
-  if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true" || req.url ~ "xmlrpc.php") {
+  if (req.url ~ "wp-(login|admin)" || req.url ~ "preview=true" || req.url ~ "xmlrpc.php" || req.url ~ "/no-cache-") {
     return (pass);
   }
 
