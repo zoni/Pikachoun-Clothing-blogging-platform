@@ -51,6 +51,9 @@ ansible-playbook deploy-blog.yml
 
 A rake task, `rake provision` has been provided which does both for you.
 
+*Note: The following hosts entry is assumed to be present on the host machine:
+`192.168.98.10 wordpress.localdomain pma.localdomain`*
+
 Sample database
 ---------------
 
@@ -70,6 +73,8 @@ to do some higher-level integration testing.
 A rake task, `rake tests` has been provided which runs both of these testsuites
 for you. You can also use the individual `rake serverspec` and `rake pytest` to
 run them individually.
+
+*Note: It is assumed that the sample config and database are installed*
 
 A note on Varnish caching
 -------------------------
